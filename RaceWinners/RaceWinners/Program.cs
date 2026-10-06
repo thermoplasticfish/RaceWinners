@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RaceWinners;
@@ -39,7 +40,7 @@ public class Program
 
             Console.WriteLine($"{group.Name} - [{ranks}]");
         }
-
+        
         // YOUR TURN: Rank each group from first to last place.
         // Decide what "fair" means before you start writing code!
     }

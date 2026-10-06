@@ -42,4 +42,7 @@ public class Group
     /// </para>
     /// </remarks>
     public List<int> Ranks { get; set; } = new List<int>();
+    
+    public double TotalPoints { get; set; }
+    public double AveragePoints { get; set; }
 }

@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RaceWinners.Models;
+using System.Linq;
 
 namespace RaceWinners;
 
@@ -38,6 +40,18 @@ public class DataService
     /// </para>
     /// </remarks>
     /// <returns>A list with one <see cref="Group"/> for each class that ran the race.</returns>
+    public static double GetPoints(int place, int students)
+    {
+        // Calculating point values off an exponential decay equation.
+        // Equation is 50 * e^(-k(r-1)(N-1)), k is rate of decay and N is number of students.
+        double k = 5.0;
+        double maxPoints = 50.0;
+        
+        // Scaling x to be from 0-1 to accomodate any sized data set
+        double x = (place - 1.0) / (students - 1.0);
+        
+        return maxPoints * Math.Exp(-k * x);
+    }
     public async Task<List<Group>> GetGroupRanksAsync()
     {
         // Pretend we are downloading this data over a network.
@@ -50,9 +64,21 @@ public class DataService
         // that sets its properties right away.
         List<Group> groups =
         [
-            new Group { Name = "Class A", Ranks = [4, 9, 11, 12, 20] },
+            new Group { Name = "Class A", Ranks = [4, 9, 11, 12, 20, 21, 25, 26, 29, 35, 43, 45, 49, 54, 61, 65, 69, 70, 71] },
+            new Group { Name = "Class B", Ranks = [6, 7, 10, 13, 16, 22, 24, 27, 34, 39, 40, 42, 48, 52, 53, 62, 66, 72] },
+            new Group { Name = "Class C", Ranks = [1, 3, 14, 18, 19, 23, 28, 30, 32, 41, 44, 47, 50, 56, 60, 63, 64, 68, 73, 74] },
+            new Group { Name = "Class D", Ranks = [2, 5, 8, 15, 17, 31, 33, 36, 37, 38, 46, 51, 55, 57, 58, 59, 67] }
         ];
-
-        return groups;
+        
+        int students = groups.Sum(g => g.Ranks.Count());
+        
+        foreach (var group in groups)
+        {
+            // iterating through all the ranks in all the groups, tallying up the points and averaging them.
+            group.TotalPoints = group.Ranks.Sum(place => GetPoints(place, students));
+            group.AveragePoints = group.TotalPoints / group.Ranks.Count();
+        }
+        // sorts the groups by average score calculated above
+        return groups.OrderByDescending(g => g.AveragePoints).ToList();
     }
 }
